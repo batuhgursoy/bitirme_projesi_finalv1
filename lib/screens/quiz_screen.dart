@@ -32,7 +32,7 @@ class QuizScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 60, 
+                      width: 60,
                       height: 60,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
@@ -48,7 +48,8 @@ class QuizScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: _getSubjectColor(controller.selectedSubject.value),
+                        color:
+                            _getSubjectColor(controller.selectedSubject.value),
                       ),
                     ),
                   ],
@@ -56,18 +57,20 @@ class QuizScreen extends StatelessWidget {
               );
             }
 
-            final currentQuestion = controller.questions[controller.currentQuestionIndex.value];
+            final currentQuestion =
+                controller.questions[controller.currentQuestionIndex.value];
 
             return QuestionCard(
               question: currentQuestion,
               subjectColor: _getSubjectColor(controller.selectedSubject.value),
               onAnswerSelected: (index) {
                 if (controller.showResult.value) return;
-                
+
                 controller.selectAnswer(currentQuestion.options[index]);
-                
+
                 Future.delayed(const Duration(milliseconds: 1500), () {
-                  if (controller.currentQuestionIndex.value < controller.questions.length - 1) {
+                  if (controller.currentQuestionIndex.value <
+                      controller.questions.length - 1) {
                     controller.nextQuestion();
                   } else {
                     Get.offAllNamed('/result');
@@ -80,34 +83,34 @@ class QuizScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Color _getSubjectColor(String subject) {
-    switch(subject) {
+    switch (subject) {
       case 'Türkçe':
-        return const Color(0xFFFFA726);  // Turuncu
+        return const Color(0xFFFFA726); // Turuncu
       case 'Matematik':
-        return const Color(0xFF7C4DFF);  // Mor
+        return const Color(0xFF7C4DFF); // Mor
       case 'Hayat Bilgisi':
-        return const Color(0xFF4CAF50);  // Yeşil
+        return const Color(0xFF4CAF50); // Yeşil
       case 'İngilizce':
-        return const Color(0xFF42A5F5);  // Mavi
+        return const Color(0xFF42A5F5); // Mavi
       default:
-        return const Color(0xFF156DB4);  // Varsayılan mavi
+        return const Color(0xFF156DB4); // Varsayılan mavi
     }
   }
-  
+
   Color _getSubjectColorLight(String subject) {
-    switch(subject) {
+    switch (subject) {
       case 'Türkçe':
-        return const Color(0xFFFFE0B2);  // Açık turuncu
+        return const Color(0xFFFFE0B2); // Açık turuncu
       case 'Matematik':
-        return const Color(0xFFE1D4FF);  // Açık mor
+        return const Color(0xFFE1D4FF); // Açık mor
       case 'Hayat Bilgisi':
-        return const Color(0xFFDCEDC8);  // Açık yeşil
+        return const Color(0xFFDCEDC8); // Açık yeşil
       case 'İngilizce':
-        return const Color(0xFFBBDEFB);  // Açık mavi
+        return const Color(0xFFBBDEFB); // Açık mavi
       default:
-        return const Color(0xFFCFE9FC);  // Varsayılan açık mavi
+        return const Color(0xFFCFE9FC); // Varsayılan açık mavi
     }
   }
 }

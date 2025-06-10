@@ -11,7 +11,8 @@ class ResultScreen extends StatefulWidget {
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderStateMixin {
+class _ResultScreenState extends State<ResultScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final List<Color> _confettiColors = [
     Colors.red,
@@ -23,7 +24,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
     Colors.pink,
   ];
   final Random _random = Random();
-  
+
   @override
   void initState() {
     super.initState();
@@ -33,7 +34,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
     );
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -46,19 +47,22 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
     final correctAnswers = controller.correctAnswers;
     final totalQuestions = controller.questions.length;
     final score = (correctAnswers / totalQuestions) * 100;
-    
+
     // Get subject color theme
-    final Color subjectColor = _getSubjectColor(controller.selectedSubject.value);
-    final Color lightSubjectColor = _getSubjectColorLight(controller.selectedSubject.value);
-    
+    final Color subjectColor =
+        _getSubjectColor(controller.selectedSubject.value);
+    final Color lightSubjectColor =
+        _getSubjectColorLight(controller.selectedSubject.value);
+
     // Determine achievement level
     String achievementText = '';
     Icon achievementIcon = const Icon(Icons.star, color: Colors.amber);
     double animationValue = 0.0;
-    
+
     if (score >= 90) {
       achievementText = 'Olağanüstü!';
-      achievementIcon = const Icon(Icons.emoji_events, color: Colors.amber, size: 48);
+      achievementIcon =
+          const Icon(Icons.emoji_events, color: Colors.amber, size: 48);
       animationValue = 1.0;
     } else if (score >= 70) {
       achievementText = 'Çok İyi!';
@@ -70,10 +74,11 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
       animationValue = 0.6;
     } else {
       achievementText = 'Tekrar Deneyebilirsin';
-      achievementIcon = const Icon(Icons.lightbulb_outline, color: Colors.amber, size: 32);
+      achievementIcon =
+          const Icon(Icons.lightbulb_outline, color: Colors.amber, size: 32);
       animationValue = 0.3;
     }
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -92,23 +97,26 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
               ),
             ),
           ),
-          
+
           // Confetti animation for high scores
           if (score >= 70)
             ...List.generate(100, (index) {
               final size = _random.nextDouble() * 12 + 4;
-              final initialPosition = _random.nextDouble() * MediaQuery.of(context).size.width;
-              final color = _confettiColors[_random.nextInt(_confettiColors.length)];
+              final initialPosition =
+                  _random.nextDouble() * MediaQuery.of(context).size.width;
+              final color =
+                  _confettiColors[_random.nextInt(_confettiColors.length)];
               final delay = _random.nextDouble() * 1.0;
-              
+
               return AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
-                  final animationValue = (_animationController.value - delay).clamp(0.0, 1.0);
+                  final animationValue =
+                      (_animationController.value - delay).clamp(0.0, 1.0);
                   final y = animationValue * MediaQuery.of(context).size.height;
                   final x = initialPosition + 30 * sin(animationValue * 10);
                   final opacity = (1.0 - animationValue).clamp(0.0, 1.0);
-                  
+
                   return Positioned(
                     left: x,
                     top: y,
@@ -121,7 +129,9 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                           height: size,
                           decoration: BoxDecoration(
                             color: color,
-                            shape: _random.nextBool() ? BoxShape.circle : BoxShape.rectangle,
+                            shape: _random.nextBool()
+                                ? BoxShape.circle
+                                : BoxShape.rectangle,
                           ),
                         ),
                       ),
@@ -130,24 +140,26 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                 },
               );
             }),
-          
+
           // Content
           SafeArea(
             child: Column(
               children: [
                 // Custom app bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.white,
                         child: IconButton(
                           icon: Icon(
-                            Icons.home_rounded, 
+                            Icons.home_rounded,
                             color: subjectColor,
                           ),
-                          onPressed: () => Get.offAll(() => const WelcomeScreen()),
+                          onPressed: () =>
+                              Get.offAll(() => const WelcomeScreen()),
                         ),
                       ),
                       const Spacer(),
@@ -157,15 +169,20 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                         curve: Curves.elasticOut,
                         builder: (context, value, child) {
                           return Transform.scale(
-                            scale: value,
+                            scale: value.clamp(0.0, 1.0),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
                                     subjectColor,
                                     HSLColor.fromColor(subjectColor)
-                                        .withLightness((HSLColor.fromColor(subjectColor).lightness + 0.15).clamp(0.0, 1.0))
+                                        .withLightness(
+                                            (HSLColor.fromColor(subjectColor)
+                                                        .lightness +
+                                                    0.15)
+                                                .clamp(0.0, 1.0))
                                         .toColor(),
                                   ],
                                 ),
@@ -193,7 +210,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                     ],
                   ),
                 ),
-                
+
                 // Title with animation
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -203,11 +220,11 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                     curve: Curves.easeOutBack,
                     builder: (context, value, child) {
                       return Transform.scale(
-                        scale: value,
+                        scale: value.clamp(0.0, 1.0),
                         child: Transform.translate(
-                          offset: Offset(0, 20 * (1 - value)),
+                          offset: Offset(0, 20 * (1 - value.clamp(0.0, 1.0))),
                           child: Opacity(
-                            opacity: value,
+                            opacity: value.clamp(0.0, 1.0),
                             child: Column(
                               children: [
                                 Text(
@@ -220,10 +237,16 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                         colors: [
                                           subjectColor,
                                           HSLColor.fromColor(subjectColor)
-                                              .withLightness((HSLColor.fromColor(subjectColor).lightness + 0.2).clamp(0.0, 1.0))
+                                              .withLightness(
+                                                  (HSLColor.fromColor(
+                                                                  subjectColor)
+                                                              .lightness +
+                                                          0.2)
+                                                      .clamp(0.0, 1.0))
                                               .toColor(),
                                         ],
-                                      ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                                      ).createShader(const Rect.fromLTWH(
+                                          0.0, 0.0, 200.0, 70.0)),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -245,10 +268,11 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                     },
                   ),
                 ),
-                
+
                 // Animated progress indicator
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 32.0, vertical: 16.0),
                   child: TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0, end: 1),
                     duration: const Duration(milliseconds: 1500),
@@ -291,9 +315,9 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Progress bar
                           Stack(
                             children: [
@@ -306,18 +330,24 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              
+
                               // Foreground
                               Container(
                                 height: 24,
-                                width: MediaQuery.of(context).size.width * (correctAnswers / totalQuestions) * animation,
+                                width: MediaQuery.of(context).size.width *
+                                    (correctAnswers / totalQuestions) *
+                                    animation,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
                                       subjectColor,
-                                      HSLColor.fromColor(subjectColor).withLightness(
-                                        (HSLColor.fromColor(subjectColor).lightness + 0.15).clamp(0.0, 1.0)
-                                      ).toColor(),
+                                      HSLColor.fromColor(subjectColor)
+                                          .withLightness(
+                                              (HSLColor.fromColor(subjectColor)
+                                                          .lightness +
+                                                      0.15)
+                                                  .clamp(0.0, 1.0))
+                                          .toColor(),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
@@ -337,7 +367,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                     },
                   ),
                 ),
-                
+
                 // Statistics
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -368,7 +398,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
               ],
             ),
           ),
-          
+
           // Expandable question analysis section
           DraggableScrollableSheet(
             initialChildSize: 0.35,
@@ -404,7 +434,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                    
+
                     // Title
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -417,10 +447,11 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                    
+
                     // Instructions
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 4.0),
                       child: Text(
                         'Daha fazla soru görmek için yukarı kaydırın',
                         style: TextStyle(
@@ -431,7 +462,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    
+
                     // Question list
                     Expanded(
                       child: ListView.builder(
@@ -440,17 +471,21 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                         itemCount: controller.questions.length,
                         itemBuilder: (context, index) {
                           final question = controller.questions[index];
-                          final userAnswer = index < controller.userAnswers.length 
-                              ? controller.userAnswers[index] 
-                              : -1;
-                          final isCorrect = userAnswer == question.correctAnswerIndex;
-                          
-                          final userSelectedOption = userAnswer >= 0 && userAnswer < question.options.length
+                          final userAnswer =
+                              index < controller.userAnswers.length
+                                  ? controller.userAnswers[index]
+                                  : -1;
+                          final isCorrect =
+                              userAnswer == question.correctAnswerIndex;
+
+                          final userSelectedOption = userAnswer >= 0 &&
+                                  userAnswer < question.options.length
                               ? question.options[userAnswer]
                               : "Cevapsız";
-                              
-                          final correctOption = question.options[question.correctAnswerIndex];
-                          
+
+                          final correctOption =
+                              question.options[question.correctAnswerIndex];
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
@@ -472,13 +507,17 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: isCorrect ? Colors.green.shade50 : Colors.red.shade50,
+                                    color: isCorrect
+                                        ? Colors.green.shade50
+                                        : Colors.red.shade50,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(16),
                                       topRight: Radius.circular(16),
                                     ),
                                     border: Border.all(
-                                      color: isCorrect ? Colors.green.shade200 : Colors.red.shade200,
+                                      color: isCorrect
+                                          ? Colors.green.shade200
+                                          : Colors.red.shade200,
                                       width: 1,
                                     ),
                                   ),
@@ -486,11 +525,15 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                     children: [
                                       CircleAvatar(
                                         radius: 14,
-                                        backgroundColor: isCorrect ? Colors.green.shade100 : Colors.red.shade100,
+                                        backgroundColor: isCorrect
+                                            ? Colors.green.shade100
+                                            : Colors.red.shade100,
                                         child: Text(
                                           '${index + 1}',
                                           style: TextStyle(
-                                            color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
+                                            color: isCorrect
+                                                ? Colors.green.shade800
+                                                : Colors.red.shade800,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
                                           ),
@@ -498,8 +541,12 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                       ),
                                       const SizedBox(width: 8),
                                       Icon(
-                                        isCorrect ? Icons.check_circle : Icons.cancel,
-                                        color: isCorrect ? Colors.green : Colors.red,
+                                        isCorrect
+                                            ? Icons.check_circle
+                                            : Icons.cancel,
+                                        color: isCorrect
+                                            ? Colors.green
+                                            : Colors.red,
                                         size: 16,
                                       ),
                                       const SizedBox(width: 4),
@@ -508,13 +555,15 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
-                                          color: isCorrect ? Colors.green.shade700 : Colors.red.shade700,
+                                          color: isCorrect
+                                              ? Colors.green.shade700
+                                              : Colors.red.shade700,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                
+
                                 // Question text
                                 Padding(
                                   padding: const EdgeInsets.all(12),
@@ -526,25 +575,31 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                     ),
                                   ),
                                 ),
-                                
+
                                 // Divider
                                 Divider(height: 1, color: Colors.grey.shade200),
-                                
+
                                 // Answers - Made wider and more prominent
                                 Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // User answer
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
                                               Icon(
-                                                isCorrect ? Icons.check_circle : Icons.cancel,
-                                                color: isCorrect ? Colors.green : Colors.red,
+                                                isCorrect
+                                                    ? Icons.check_circle
+                                                    : Icons.cancel,
+                                                color: isCorrect
+                                                    ? Colors.green
+                                                    : Colors.red,
                                                 size: 16,
                                               ),
                                               const SizedBox(width: 8),
@@ -560,13 +615,20 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                           ),
                                           Container(
                                             width: double.infinity,
-                                            margin: const EdgeInsets.only(top: 6, bottom: 8),
-                                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                            margin: const EdgeInsets.only(
+                                                top: 6, bottom: 8),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10, horizontal: 12),
                                             decoration: BoxDecoration(
-                                              color: isCorrect ? Colors.green.shade50 : Colors.red.shade50,
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: isCorrect
+                                                  ? Colors.green.shade50
+                                                  : Colors.red.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: isCorrect ? Colors.green.shade200 : Colors.red.shade200,
+                                                color: isCorrect
+                                                    ? Colors.green.shade200
+                                                    : Colors.red.shade200,
                                               ),
                                             ),
                                             child: Text(
@@ -574,17 +636,20 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500,
-                                                color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
+                                                color: isCorrect
+                                                    ? Colors.green.shade800
+                                                    : Colors.red.shade800,
                                               ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                      
+
                                       if (!isCorrect) ...[
                                         // Correct answer
                                         Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: [
@@ -606,11 +671,16 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                                             ),
                                             Container(
                                               width: double.infinity,
-                                              margin: const EdgeInsets.only(top: 6),
-                                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                              margin:
+                                                  const EdgeInsets.only(top: 6),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 12),
                                               decoration: BoxDecoration(
                                                 color: Colors.green.shade50,
-                                                borderRadius: BorderRadius.circular(8),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                                 border: Border.all(
                                                   color: Colors.green.shade200,
                                                 ),
@@ -684,8 +754,9 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
       ),
     );
   }
-  
-  Widget _buildStatisticCard(String title, int value, IconData icon, Color iconColor, Color subjectColor) {
+
+  Widget _buildStatisticCard(String title, int value, IconData icon,
+      Color iconColor, Color subjectColor) {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: 1),
       duration: const Duration(milliseconds: 800),
@@ -738,34 +809,34 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
       },
     );
   }
-  
+
   Color _getSubjectColor(String subject) {
-    switch(subject) {
+    switch (subject) {
       case 'Türkçe':
-        return const Color(0xFFFFA726);  // Turuncu
+        return const Color(0xFFFFA726); // Turuncu
       case 'Matematik':
-        return const Color(0xFF7C4DFF);  // Mor
+        return const Color(0xFF7C4DFF); // Mor
       case 'Hayat Bilgisi':
-        return const Color(0xFF4CAF50);  // Yeşil
+        return const Color(0xFF4CAF50); // Yeşil
       case 'İngilizce':
-        return const Color(0xFF42A5F5);  // Mavi
+        return const Color(0xFF42A5F5); // Mavi
       default:
-        return const Color(0xFF156DB4);  // Varsayılan mavi
+        return const Color(0xFF156DB4); // Varsayılan mavi
     }
   }
-  
+
   Color _getSubjectColorLight(String subject) {
-    switch(subject) {
+    switch (subject) {
       case 'Türkçe':
-        return const Color(0xFFFFE0B2);  // Açık turuncu
+        return const Color(0xFFFFE0B2); // Açık turuncu
       case 'Matematik':
-        return const Color(0xFFE1D4FF);  // Açık mor
+        return const Color(0xFFE1D4FF); // Açık mor
       case 'Hayat Bilgisi':
-        return const Color(0xFFDCEDC8);  // Açık yeşil
+        return const Color(0xFFDCEDC8); // Açık yeşil
       case 'İngilizce':
-        return const Color(0xFFBBDEFB);  // Açık mavi
+        return const Color(0xFFBBDEFB); // Açık mavi
       default:
-        return const Color(0xFFCFE9FC);  // Varsayılan açık mavi
+        return const Color(0xFFCFE9FC); // Varsayılan açık mavi
     }
   }
-} 
+}

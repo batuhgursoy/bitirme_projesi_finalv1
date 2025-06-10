@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/quiz_controller.dart';
 
+/// Quiz sonuçlarını gösteren kart widget'ı
+/// Doğru/yanlış sayıları ve başarı yüzdesini gösterir
 class ResultCard extends StatelessWidget {
+  /// Doğru cevap sayısı
   final int correctAnswers;
+
+  /// Yanlış cevap sayısı
   final int wrongAnswers;
+
+  /// Toplam soru sayısı
   final int totalQuestions;
 
   const ResultCard({
@@ -96,4 +103,4 @@ class ResultCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

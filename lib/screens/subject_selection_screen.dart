@@ -11,11 +11,12 @@ class SubjectSelectionScreen extends StatefulWidget {
   State<SubjectSelectionScreen> createState() => _SubjectSelectionScreenState();
 }
 
-class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with SingleTickerProviderStateMixin {
+class _SubjectSelectionScreenState extends State<SubjectSelectionScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   int _currentIndex = 0;
   final PageController _pageController = PageController(viewportFraction: 0.8);
-  
+
   final List<Map<String, dynamic>> subjects = [
     {
       'title': 'Türkçe',
@@ -50,7 +51,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
       'background': 'assets/images/language.png',
     },
   ];
-  
+
   @override
   void initState() {
     super.initState();
@@ -58,9 +59,9 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    
+
     _controller.forward();
-    
+
     _pageController.addListener(() {
       int next = _pageController.page!.round();
       if (_currentIndex != next) {
@@ -70,7 +71,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
       }
     });
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -104,13 +105,13 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                   ),
                 ),
               ),
-              
+
               // Background floating bubbles
               ...List.generate(10, (index) {
                 final random = Random();
                 final size = 20.0 + random.nextDouble() * 40;
                 final color = currentSubjectColor;
-                
+
                 return Positioned(
                   top: random.nextDouble() * MediaQuery.of(context).size.height,
                   left: random.nextDouble() * MediaQuery.of(context).size.width,
@@ -139,18 +140,20 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                   ),
                 );
               }),
-              
+
               // Content
               SafeArea(
                 child: Column(
                   children: [
                     // Custom App Bar
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black54),
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                                color: Colors.black54),
                             onPressed: () => Get.back(),
                           ),
                           const Spacer(),
@@ -166,7 +169,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                               ),
                             ),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
@@ -179,7 +183,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.blue.shade200.withOpacity(0.5),
+                                    color:
+                                        Colors.blue.shade200.withOpacity(0.5),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -187,7 +192,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                               ),
                               child: const Row(
                                 children: [
-                                  Icon(Icons.school_rounded, color: Colors.white),
+                                  Icon(Icons.school_rounded,
+                                      color: Colors.white),
                                   SizedBox(width: 8),
                                   Text(
                                     'İlkokul Quiz',
@@ -203,7 +209,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                         ],
                       ),
                     ),
-                    
+
                     // Title section
                     SlideTransition(
                       position: Tween<Offset>(
@@ -212,25 +218,29 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                       ).animate(
                         CurvedAnimation(
                           parent: _controller,
-                          curve: const Interval(0.2, 1.0, curve: Curves.elasticOut),
+                          curve: const Interval(0.2, 1.0,
+                              curve: Curves.elasticOut),
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 20),
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
                             // Multiple floating decorative elements
                             ...List.generate(3, (index) {
                               // Seçilen dersin ikonunu opak yansımalar olarak göster
-                              final IconData subjectIcon = subjects[_currentIndex]['icon'] as IconData;
+                              final IconData subjectIcon =
+                                  subjects[_currentIndex]['icon'] as IconData;
                               final offset = index * 0.5;
                               return Positioned(
                                 right: 30 - (index * 10),
                                 top: 5 + (index * 15),
                                 child: TweenAnimationBuilder(
                                   tween: Tween<double>(begin: 0, end: 1),
-                                  duration: Duration(milliseconds: 1000 + (index * 200)),
+                                  duration: Duration(
+                                      milliseconds: 1000 + (index * 200)),
                                   curve: Curves.easeOutBack,
                                   builder: (context, value, child) {
                                     return Transform.scale(
@@ -251,7 +261,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                 ),
                               );
                             }),
-                            
+
                             // Accent line with current subject color
                             Positioned(
                               top: 26,
@@ -270,7 +280,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                         gradient: LinearGradient(
                                           colors: [
                                             Colors.transparent,
-                                            currentSubjectColor.withOpacity(0.5),
+                                            currentSubjectColor
+                                                .withOpacity(0.5),
                                             currentSubjectColor,
                                           ],
                                         ),
@@ -281,7 +292,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                 },
                               ),
                             ),
-                            
+
                             // Title content
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,18 +313,22 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                           ..color = Colors.grey.shade200,
                                       ),
                                     ),
-                                    
+
                                     // Color text on top
                                     ShaderMask(
                                       blendMode: BlendMode.srcIn,
                                       shaderCallback: (Rect bounds) {
                                         return LinearGradient(
                                           colors: [
-                                            currentSubjectColor.withOpacity(0.9),
-                                            HSLColor.fromColor(currentSubjectColor)
-                                                .withLightness(
-                                                  (HSLColor.fromColor(currentSubjectColor).lightness - 0.2)
-                                                      .clamp(0.0, 1.0))
+                                            currentSubjectColor
+                                                .withOpacity(0.9),
+                                            HSLColor.fromColor(
+                                                    currentSubjectColor)
+                                                .withLightness((HSLColor.fromColor(
+                                                                currentSubjectColor)
+                                                            .lightness -
+                                                        0.2)
+                                                    .clamp(0.0, 1.0))
                                                 .toColor(),
                                           ],
                                           begin: Alignment.topLeft,
@@ -331,7 +346,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                     ),
                                   ],
                                 ),
-                                
+
                                 // Animated underline with current subject color
                                 TweenAnimationBuilder<double>(
                                   tween: Tween<double>(begin: 0, end: 1),
@@ -346,17 +361,21 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                         gradient: LinearGradient(
                                           colors: [
                                             currentSubjectColor,
-                                            HSLColor.fromColor(currentSubjectColor)
-                                                .withLightness(
-                                                  (HSLColor.fromColor(currentSubjectColor).lightness - 0.2)
-                                                      .clamp(0.0, 1.0))
+                                            HSLColor.fromColor(
+                                                    currentSubjectColor)
+                                                .withLightness((HSLColor.fromColor(
+                                                                currentSubjectColor)
+                                                            .lightness -
+                                                        0.2)
+                                                    .clamp(0.0, 1.0))
                                                 .toColor(),
                                           ],
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: currentSubjectColor.withOpacity(0.3),
+                                            color: currentSubjectColor
+                                                .withOpacity(0.3),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -365,21 +384,28 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                     );
                                   },
                                 ),
-                                
+
                                 const SizedBox(height: 14),
-                                
+
                                 // Animated subtitle with typing effect
                                 Obx(() {
-                                  final bool showDefaultText = subjects[_currentIndex]['title'] == controller.selectedSubject.value && 
-                                                              subjects[_currentIndex]['title'] != 'Hayat Bilgisi' &&
-                                                              subjects[_currentIndex]['title'] != 'Matematik';
+                                  final bool showDefaultText =
+                                      subjects[_currentIndex]['title'] ==
+                                              controller
+                                                  .selectedSubject.value &&
+                                          subjects[_currentIndex]['title'] !=
+                                              'Hayat Bilgisi' &&
+                                          subjects[_currentIndex]['title'] !=
+                                              'Matematik';
                                   // Always use "[Subject] dersini seçmek için dokun" format for every subject
-                                  final String displayText = '${subjects[_currentIndex]['title']} dersini seçmek için dokun';
-                                  
+                                  final String displayText =
+                                      '${subjects[_currentIndex]['title']} dersini seçmek için dokun';
+
                                   return DefaultTextStyle(
                                     style: TextStyle(
                                       fontSize: 17,
-                                      color: currentSubjectColor.withOpacity(0.8),
+                                      color:
+                                          currentSubjectColor.withOpacity(0.8),
                                       fontFamily: 'Nunito',
                                       letterSpacing: 0.6,
                                       height: 1.2,
@@ -387,7 +413,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                     ),
                                     child: TweenAnimationBuilder<double>(
                                       tween: Tween<double>(begin: 0, end: 1),
-                                      duration: const Duration(milliseconds: 500),
+                                      duration:
+                                          const Duration(milliseconds: 500),
                                       curve: Curves.easeOut,
                                       builder: (context, value, child) {
                                         return Opacity(
@@ -404,7 +431,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                         ),
                       ),
                     ),
-                    
+
                     // 3D Carousel for subjects
                     Expanded(
                       child: PageView.builder(
@@ -419,7 +446,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                           final subject = subjects[index];
                           final color = subject['color'] as Color;
                           bool active = _currentIndex == index;
-                          
+
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeOutQuint,
@@ -446,7 +473,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () {
-                                    controller.selectSubject(subject['title'] as String);
+                                    controller.selectSubject(
+                                        subject['title'] as String);
                                     Get.to(() => const GradeSelectionScreen());
                                   },
                                   splashColor: color.withOpacity(0.2),
@@ -460,18 +488,22 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                           child: Image.asset(
                                             subject['pattern'],
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(color: color.withOpacity(0.05));
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                  color:
+                                                      color.withOpacity(0.05));
                                             },
                                           ),
                                         ),
                                       ),
-                                      
+
                                       // Content
                                       Container(
                                         padding: const EdgeInsets.all(30),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
                                           children: [
                                             // Icon with glow
                                             Transform.rotate(
@@ -484,7 +516,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                                   shape: BoxShape.circle,
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: color.withOpacity(0.5),
+                                                      color: color
+                                                          .withOpacity(0.5),
                                                       blurRadius: 20,
                                                       spreadRadius: 5,
                                                     ),
@@ -495,7 +528,8 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                                     subject['background'],
                                                     width: 70,
                                                     height: 70,
-                                                    errorBuilder: (context, error, stackTrace) {
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
                                                       return Icon(
                                                         subject['icon'],
                                                         size: 60,
@@ -506,9 +540,9 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                                 ),
                                               ),
                                             ),
-                                            
+
                                             const SizedBox(height: 20),
-                                            
+
                                             // Title and description
                                             Column(
                                               children: [
@@ -532,42 +566,54 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                                                 ),
                                               ],
                                             ),
-                                            
+
                                             const SizedBox(height: 20),
-                                            
+
                                             // Action button
                                             Transform.translate(
-                                              offset: Offset(0, active ? 0 : 20),
+                                              offset:
+                                                  Offset(0, active ? 0 : 20),
                                               child: AnimatedOpacity(
-                                                duration: const Duration(milliseconds: 500),
+                                                duration: const Duration(
+                                                    milliseconds: 500),
                                                 opacity: active ? 1.0 : 0.0,
                                                 child: Container(
-                                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 24),
                                                   decoration: BoxDecoration(
                                                     color: color,
-                                                    borderRadius: BorderRadius.circular(30),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
                                                     boxShadow: [
                                                       BoxShadow(
-                                                        color: color.withOpacity(0.4),
+                                                        color: color
+                                                            .withOpacity(0.4),
                                                         blurRadius: 10,
-                                                        offset: const Offset(0, 4),
+                                                        offset:
+                                                            const Offset(0, 4),
                                                       ),
                                                     ],
                                                   ),
                                                   child: const Row(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
                                                       Text(
                                                         'Başla',
                                                         style: TextStyle(
                                                           color: Colors.white,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           fontSize: 16,
                                                         ),
                                                       ),
                                                       SizedBox(width: 8),
                                                       Icon(
-                                                        Icons.arrow_forward_rounded,
+                                                        Icons
+                                                            .arrow_forward_rounded,
                                                         color: Colors.white,
                                                         size: 18,
                                                       ),
@@ -588,7 +634,7 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
                         },
                       ),
                     ),
-                    
+
                     // Carousel indicators
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
@@ -620,4 +666,4 @@ class _SubjectSelectionScreenState extends State<SubjectSelectionScreen> with Si
       },
     );
   }
-} 
+}

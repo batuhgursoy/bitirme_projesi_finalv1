@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../controllers/quiz_controller.dart';
 import '../models/question.dart';
 
+/// Quiz ekranında soruları gösteren ana widget
+/// Animasyonlu geçişler ve interaktif UI elementleri içerir
 class QuestionCard extends StatefulWidget {
   final Question question;
   final Color subjectColor;
@@ -20,17 +22,26 @@ class QuestionCard extends StatefulWidget {
   State<QuestionCard> createState() => _QuestionCardState();
 }
 
-class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderStateMixin {
+class _QuestionCardState extends State<QuestionCard>
+    with SingleTickerProviderStateMixin {
   final QuizController controller = Get.find<QuizController>();
   late AnimationController _animationController;
   late Animation<double> _questionAnimation;
-  
+
   int? selectedAnswerIndex;
   bool isAnswered = false;
+
+  /// Her seçenek için bir GlobalKey tutuyoruz
+  /// Bu key'ler seçeneklerin pozisyonlarını takip etmek için kullanılır
   final List<GlobalKey> _optionKeys = List.generate(4, (_) => GlobalKey());
+
+  /// Her seçeneğin hover durumunu takip eden liste
   final List<bool> _optionHovered = List.generate(4, (_) => false);
-  final List<double> _confettiPositions = List.generate(15, (_) => Random().nextDouble() * 2 - 1);
-  
+
+  /// Konfeti efekti için rastgele pozisyonlar
+  final List<double> _confettiPositions =
+      List.generate(15, (_) => Random().nextDouble() * 2 - 1);
+
   @override
   void initState() {
     super.initState();
@@ -38,15 +49,15 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _questionAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOutBack,
     );
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void didUpdateWidget(QuestionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -54,13 +65,10 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
       setState(() {
         isAnswered = false;
         selectedAnswerIndex = null;
-        // Remove animation restart between questions
-        // _animationController.reset();
-        // _animationController.forward();
       });
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -70,7 +78,7 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    
+
     return Stack(
       children: [
         // Animated background particles based on subject color
@@ -79,10 +87,12 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
           final size = 10.0 + random.nextDouble() * 30;
           final speed = 1.0 + random.nextDouble() * 3;
           final color = HSLColor.fromColor(widget.subjectColor)
-              .withLightness((HSLColor.fromColor(widget.subjectColor).lightness + 0.2).clamp(0.0, 1.0))
+              .withLightness(
+                  (HSLColor.fromColor(widget.subjectColor).lightness + 0.2)
+                      .clamp(0.0, 1.0))
               .toColor()
               .withOpacity(0.1 + random.nextDouble() * 0.1);
-          
+
           return Positioned(
             left: random.nextDouble() * MediaQuery.of(context).size.width,
             top: random.nextDouble() * MediaQuery.of(context).size.height,
@@ -102,8 +112,11 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                       height: size,
                       decoration: BoxDecoration(
                         color: color,
-                        shape: index % 2 == 0 ? BoxShape.circle : BoxShape.rectangle,
-                        borderRadius: index % 2 == 0 ? null : BorderRadius.circular(5),
+                        shape: index % 2 == 0
+                            ? BoxShape.circle
+                            : BoxShape.rectangle,
+                        borderRadius:
+                            index % 2 == 0 ? null : BorderRadius.circular(5),
                       ),
                     ),
                   ),
@@ -116,7 +129,7 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
             ),
           );
         }),
-      
+
         SafeArea(
           child: Column(
             children: [
@@ -148,14 +161,15 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                    
+
                     const Spacer(),
-                    
+
                     // Progress indicator
                     Obx(() {
-                      final currentIndex = controller.currentQuestionIndex.value;
+                      final currentIndex =
+                          controller.currentQuestionIndex.value;
                       final totalQuestions = controller.questions.length;
-                      
+
                       return Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -176,15 +190,20 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                             (index) {
                               final bool isCurrent = index == currentIndex;
                               final bool isPast = index < currentIndex;
-                              
+
                               return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 3),
                                 child: Icon(
-                                  isPast ? Icons.star : isCurrent ? Icons.star : Icons.star_border,
-                                  color: isPast 
-                                      ? widget.subjectColor 
-                                      : isCurrent 
-                                          ? widget.subjectColor 
+                                  isPast
+                                      ? Icons.star
+                                      : isCurrent
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                  color: isPast
+                                      ? widget.subjectColor
+                                      : isCurrent
+                                          ? widget.subjectColor
                                           : Colors.grey.shade300,
                                   size: isCurrent ? 24 : 18,
                                 ),
@@ -197,9 +216,9 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                   ],
                 ),
               ),
-              
+
               const Spacer(flex: 1),
-              
+
               // Question card with 3D effect
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -247,7 +266,8 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: widget.subjectColor.withOpacity(0.1),
+                                      color:
+                                          widget.subjectColor.withOpacity(0.1),
                                       blurRadius: 20,
                                       spreadRadius: 1,
                                     ),
@@ -260,7 +280,7 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              
+
                               // Question text with animated underline
                               Column(
                                 children: [
@@ -276,7 +296,8 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                   const SizedBox(height: 8),
                                   TweenAnimationBuilder<double>(
                                     tween: Tween<double>(begin: 0, end: 1),
-                                    duration: const Duration(milliseconds: 1000),
+                                    duration:
+                                        const Duration(milliseconds: 1000),
                                     curve: Curves.easeOutQuad,
                                     builder: (context, value, _) {
                                       return Container(
@@ -301,9 +322,9 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 30),
-                    
+
                     // Answer options with 3D hover effect
                     ...List.generate(
                       widget.question.options.length,
@@ -313,12 +334,15 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                           final double delay = index * 0.2;
                           final double start = 0.3;
                           final double end = 1.0;
-                          
+
                           // Calculate a value between 0-1 with delay for each option
-                          final animationValue = (_animationController.value - delay) / (1 - delay);
+                          final animationValue =
+                              (_animationController.value - delay) /
+                                  (1 - delay);
                           final double opacity = animationValue.clamp(0.0, 1.0);
-                          final double scale = start + (end - start) * opacity.clamp(0.0, 1.0);
-                          
+                          final double scale =
+                              start + (end - start) * opacity.clamp(0.0, 1.0);
+
                           return Opacity(
                             opacity: opacity,
                             child: Transform.scale(
@@ -328,16 +352,20 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                           );
                         },
                         child: GestureDetector(
-                          onTap: isAnswered ? null : () {
-                            setState(() {
-                              selectedAnswerIndex = index;
-                              isAnswered = true;
-                            });
-                            widget.onAnswerSelected(index);
-                          },
+                          onTap: isAnswered
+                              ? null
+                              : () {
+                                  setState(() {
+                                    selectedAnswerIndex = index;
+                                    isAnswered = true;
+                                  });
+                                  widget.onAnswerSelected(index);
+                                },
                           child: MouseRegion(
-                            onEnter: (_) => setState(() => _optionHovered[index] = true),
-                            onExit: (_) => setState(() => _optionHovered[index] = false),
+                            onEnter: (_) =>
+                                setState(() => _optionHovered[index] = true),
+                            onExit: (_) =>
+                                setState(() => _optionHovered[index] = false),
                             child: TweenAnimationBuilder<double>(
                               tween: Tween<double>(
                                 begin: 0.0,
@@ -357,34 +385,57 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                       Container(
                                         key: _optionKeys[index],
                                         width: double.infinity,
-                                        margin: const EdgeInsets.only(bottom: 16),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
                                         padding: const EdgeInsets.all(18),
                                         decoration: BoxDecoration(
                                           color: selectedAnswerIndex == index
-                                              ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
+                                              ? (widget.question.options[widget
+                                                          .question
+                                                          .correctAnswerIndex] ==
+                                                      widget.question
+                                                          .options[index]
                                                   ? Colors.green.shade50
                                                   : Colors.red.shade50)
                                               : Colors.white,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                           border: Border.all(
                                             color: selectedAnswerIndex == index
-                                                ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
+                                                ? (widget.question.options[widget
+                                                            .question
+                                                            .correctAnswerIndex] ==
+                                                        widget.question
+                                                            .options[index]
                                                     ? Colors.green
                                                     : Colors.red)
                                                 : _optionHovered[index]
                                                     ? widget.subjectColor
                                                     : Colors.grey.shade300,
-                                            width: selectedAnswerIndex == index || _optionHovered[index] ? 2 : 1,
+                                            width:
+                                                selectedAnswerIndex == index ||
+                                                        _optionHovered[index]
+                                                    ? 2
+                                                    : 1,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: (selectedAnswerIndex == index)
-                                                  ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
-                                                      ? Colors.green.withOpacity(0.2)
-                                                      : Colors.red.withOpacity(0.2))
+                                              color: (selectedAnswerIndex ==
+                                                      index)
+                                                  ? (widget.question.options[widget
+                                                              .question
+                                                              .correctAnswerIndex] ==
+                                                          widget.question
+                                                              .options[index]
+                                                      ? Colors.green
+                                                          .withOpacity(0.2)
+                                                      : Colors.red
+                                                          .withOpacity(0.2))
                                                   : _optionHovered[index]
-                                                      ? widget.subjectColor.withOpacity(0.2)
-                                                      : Colors.black.withOpacity(0.05),
+                                                      ? widget.subjectColor
+                                                          .withOpacity(0.2)
+                                                      : Colors.black
+                                                          .withOpacity(0.05),
                                               blurRadius: 10,
                                               offset: const Offset(0, 4),
                                             ),
@@ -394,59 +445,100 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                           children: [
                                             // Option letter in circle
                                             AnimatedContainer(
-                                              duration: const Duration(milliseconds: 300),
+                                              duration: const Duration(
+                                                  milliseconds: 300),
                                               width: 40,
                                               height: 40,
                                               decoration: BoxDecoration(
-                                                color: selectedAnswerIndex == index
-                                                    ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
+                                                color: selectedAnswerIndex ==
+                                                        index
+                                                    ? (widget.question.options[
+                                                                widget.question
+                                                                    .correctAnswerIndex] ==
+                                                            widget.question
+                                                                .options[index]
                                                         ? Colors.green
                                                         : Colors.red)
                                                     : _optionHovered[index]
                                                         ? widget.subjectColor
-                                                        : widget.subjectColor.withOpacity(0.1),
+                                                        : widget.subjectColor
+                                                            .withOpacity(0.1),
                                                 shape: BoxShape.circle,
-                                                boxShadow: _optionHovered[index] || selectedAnswerIndex == index
+                                                boxShadow: _optionHovered[
+                                                            index] ||
+                                                        selectedAnswerIndex ==
+                                                            index
                                                     ? [
                                                         BoxShadow(
-                                                          color: (selectedAnswerIndex == index)
-                                                              ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
-                                                                  ? Colors.green.withOpacity(0.3)
-                                                                  : Colors.red.withOpacity(0.3))
-                                                              : widget.subjectColor.withOpacity(0.2),
+                                                          color: (selectedAnswerIndex ==
+                                                                  index)
+                                                              ? (widget.question.options[widget
+                                                                          .question
+                                                                          .correctAnswerIndex] ==
+                                                                      widget.question.options[
+                                                                          index]
+                                                                  ? Colors.green
+                                                                      .withOpacity(
+                                                                          0.3)
+                                                                  : Colors.red
+                                                                      .withOpacity(
+                                                                          0.3))
+                                                              : widget
+                                                                  .subjectColor
+                                                                  .withOpacity(
+                                                                      0.2),
                                                           blurRadius: 8,
-                                                          offset: const Offset(0, 2),
+                                                          offset: const Offset(
+                                                              0, 2),
                                                         ),
                                                       ]
                                                     : null,
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  String.fromCharCode(65 + index), // A, B, C, D
+                                                  String.fromCharCode(
+                                                      65 + index), // A, B, C, D
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color: (selectedAnswerIndex == index || _optionHovered[index])
-                                                        ? Colors.white
-                                                        : widget.subjectColor,
+                                                    color:
+                                                        (selectedAnswerIndex ==
+                                                                    index ||
+                                                                _optionHovered[
+                                                                    index])
+                                                            ? Colors.white
+                                                            : widget
+                                                                .subjectColor,
                                                   ),
                                                 ),
                                               ),
                                             ),
                                             const SizedBox(width: 16),
-                                            
+
                                             // Option text
                                             Expanded(
                                               child: Text(
                                                 widget.question.options[index],
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  fontWeight: selectedAnswerIndex == index || _optionHovered[index] 
-                                                      ? FontWeight.bold 
-                                                      : FontWeight.normal,
-                                                  color: selectedAnswerIndex == index
-                                                      ? (widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index]
-                                                          ? Colors.green.shade800
+                                                  fontWeight:
+                                                      selectedAnswerIndex ==
+                                                                  index ||
+                                                              _optionHovered[
+                                                                  index]
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                  color: selectedAnswerIndex ==
+                                                          index
+                                                      ? (widget.question.options[
+                                                                  widget
+                                                                      .question
+                                                                      .correctAnswerIndex] ==
+                                                              widget.question
+                                                                      .options[
+                                                                  index]
+                                                          ? Colors
+                                                              .green.shade800
                                                           : Colors.red.shade800)
                                                       : _optionHovered[index]
                                                           ? widget.subjectColor
@@ -454,23 +546,37 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                                 ),
                                               ),
                                             ),
-                                            
+
                                             // Correct/incorrect icon
                                             if (selectedAnswerIndex == index)
                                               ...List.generate(
-                                                widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index] ? 1 : 0,
-                                                (_) => TweenAnimationBuilder<double>(
-                                                  tween: Tween<double>(begin: 0, end: 1),
-                                                  duration: const Duration(milliseconds: 500),
+                                                widget.question.options[widget
+                                                            .question
+                                                            .correctAnswerIndex] ==
+                                                        widget.question
+                                                            .options[index]
+                                                    ? 1
+                                                    : 0,
+                                                (_) => TweenAnimationBuilder<
+                                                    double>(
+                                                  tween: Tween<double>(
+                                                      begin: 0, end: 1),
+                                                  duration: const Duration(
+                                                      milliseconds: 500),
                                                   curve: Curves.elasticOut,
                                                   builder: (context, value, _) {
                                                     return Transform.scale(
                                                       scale: value,
                                                       child: Container(
-                                                        padding: const EdgeInsets.all(4),
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.green.shade50,
-                                                          shape: BoxShape.circle,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(4),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .green.shade50,
+                                                          shape:
+                                                              BoxShape.circle,
                                                         ),
                                                         child: const Icon(
                                                           Icons.check,
@@ -482,9 +588,13 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                                   },
                                                 ),
                                               ),
-                                            
-                                            if (selectedAnswerIndex == index && 
-                                                widget.question.options[widget.question.correctAnswerIndex] != widget.question.options[index])
+
+                                            if (selectedAnswerIndex == index &&
+                                                widget.question.options[widget
+                                                        .question
+                                                        .correctAnswerIndex] !=
+                                                    widget.question
+                                                        .options[index])
                                               Icon(
                                                 Icons.close,
                                                 color: Colors.red,
@@ -493,26 +603,49 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                           ],
                                         ),
                                       ),
-                                      
+
                                       // Confetti effect for correct answer
-                                      if (selectedAnswerIndex == index && 
-                                          widget.question.options[widget.question.correctAnswerIndex] == widget.question.options[index])
-                                        ...List.generate(_confettiPositions.length, (i) {
+                                      if (selectedAnswerIndex == index &&
+                                          widget.question.options[widget
+                                                  .question
+                                                  .correctAnswerIndex] ==
+                                              widget.question.options[index])
+                                        ...List.generate(
+                                            _confettiPositions.length, (i) {
                                           return TweenAnimationBuilder<double>(
-                                            tween: Tween<double>(begin: 0, end: 1),
-                                            duration: Duration(milliseconds: 800 + (i * 50)),
+                                            tween:
+                                                Tween<double>(begin: 0, end: 1),
+                                            duration: Duration(
+                                                milliseconds: 800 + (i * 50)),
                                             curve: Curves.easeOutQuad,
                                             builder: (context, value, _) {
                                               return Positioned(
-                                                left: Random().nextInt(300).toDouble(),
-                                                top: (20.0 + (60 * value) + (Random().nextInt(20) - 10)).toDouble(),
+                                                left: Random()
+                                                    .nextInt(300)
+                                                    .toDouble(),
+                                                top: (20.0 +
+                                                        (60 * value) +
+                                                        (Random().nextInt(20) -
+                                                            10))
+                                                    .toDouble(),
                                                 child: Opacity(
-                                                  opacity: 1 - value.clamp(0.0, 1.0),
+                                                  opacity:
+                                                      1 - value.clamp(0.0, 1.0),
                                                   child: Transform.rotate(
-                                                    angle: _confettiPositions[i] * 2 * pi * value,
+                                                    angle:
+                                                        _confettiPositions[i] *
+                                                            2 *
+                                                            pi *
+                                                            value,
                                                     child: Container(
-                                                      width: 8.0 + (Random().nextInt(8).toDouble()),
-                                                      height: 8.0 + (Random().nextInt(8).toDouble()),
+                                                      width: 8.0 +
+                                                          (Random()
+                                                              .nextInt(8)
+                                                              .toDouble()),
+                                                      height: 8.0 +
+                                                          (Random()
+                                                              .nextInt(8)
+                                                              .toDouble()),
                                                       decoration: BoxDecoration(
                                                         color: [
                                                           Colors.green,
@@ -522,7 +655,11 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                                                           Colors.pink,
                                                           Colors.teal,
                                                         ][Random().nextInt(6)],
-                                                        shape: Random().nextBool() ? BoxShape.circle : BoxShape.rectangle,
+                                                        shape: Random()
+                                                                .nextBool()
+                                                            ? BoxShape.circle
+                                                            : BoxShape
+                                                                .rectangle,
                                                       ),
                                                     ),
                                                   ),
@@ -543,7 +680,7 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
                   ],
                 ),
               ),
-              
+
               const Spacer(flex: 2),
             ],
           ),
@@ -551,9 +688,10 @@ class _QuestionCardState extends State<QuestionCard> with SingleTickerProviderSt
       ],
     );
   }
-  
+
+  /// Derse göre ikon seçimi yapar
   IconData _getSubjectIcon(String subject) {
-    switch(subject) {
+    switch (subject) {
       case 'Türkçe':
         return Icons.menu_book;
       case 'Matematik':

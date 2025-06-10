@@ -3,34 +3,59 @@ import 'package:flutter/material.dart';
 import '../models/question.dart';
 import '../services/question_service.dart';
 
+/// Quiz akışını ve durumunu yöneten controller sınıfı
+/// GetX state management kullanılarak implement edilmiştir
 class QuizController extends GetxController {
+  /// Seçilen ders
   final RxString selectedSubject = ''.obs;
+
+  /// Seçilen sınıf seviyesi
   final RxInt selectedGrade = 0.obs;
+
+  /// Aktif quiz için yüklenen sorular
   final RxList<Question> questions = <Question>[].obs;
+
+  /// Şu anki sorunun indeksi
   final RxInt currentQuestionIndex = 0.obs;
+
+  /// Kullanıcının verdiği cevaplar
   final RxList<int> userAnswers = <int>[].obs;
+
+  /// Quiz'in tamamlanma durumu
   final RxBool isQuizCompleted = false.obs;
+
+  /// Öğrenci adı
   final RxString studentName = ''.obs;
+
+  /// Seçilen cevap indeksi
   RxInt selectedAnswer = (-1).obs;
+
+  /// Doğru cevap indeksi
   RxInt correctAnswerIndex = (-1).obs;
+
+  /// Cevabın doğruluğu
   RxBool isAnswerCorrect = false.obs;
+
+  /// Sonuç gösterme durumu
   RxBool showResult = false.obs;
 
+  /// Ders seçimini günceller
   void selectSubject(String subject) {
     selectedSubject.value = subject;
   }
 
+  /// Sınıf seviyesini günceller
   void selectGrade(int grade) {
     selectedGrade.value = grade;
   }
 
+  /// Seçilen ders ve sınıf için soruları yükler
   void loadQuestions() {
     if (selectedSubject.value.isEmpty || selectedGrade.value == 0) {
       questions.clear();
       return;
     }
 
-    // Hive'dan soruları yükle
     questions.value = QuestionService.getRandomQuestions(
       selectedSubject.value,
       selectedGrade.value,
@@ -50,18 +75,11 @@ class QuizController extends GetxController {
       return;
     }
 
-    userAnswers.clear();
-    currentQuestionIndex.value = 0;
-    isQuizCompleted.value = false;
-    selectedAnswer.value = -1;
-    correctAnswerIndex.value = -1;
-    isAnswerCorrect.value = false;
-    showResult.value = false;
-
-    print('${questions.length} soru Hive\'dan yüklendi.');
+    _resetQuizState();
+    print('${questions.length} soru yüklendi.');
   }
 
-  // Yeni soru ekleme methodu
+  /// Yeni soru ekler
   Future<void> addNewQuestion(Question question) async {
     await QuestionService.addQuestion(question);
     Get.snackbar(
@@ -73,11 +91,12 @@ class QuizController extends GetxController {
     );
   }
 
-  // İstatistik bilgileri
+  /// Soru istatistiklerini getirir
   Map<String, int> getQuestionStats() {
     return QuestionService.getQuestionCountBySubject();
   }
 
+  /// Kullanıcının seçtiği cevabı işler
   void selectAnswer(String option) {
     if (showResult.value) return;
 
@@ -94,25 +113,25 @@ class QuizController extends GetxController {
     }
   }
 
+  /// Bir sonraki soruya geçer
   void nextQuestion() {
     if (currentQuestionIndex.value < questions.length - 1) {
       currentQuestionIndex.value++;
-      selectedAnswer.value = -1;
-      correctAnswerIndex.value = -1;
-      isAnswerCorrect.value = false;
-      showResult.value = false;
+      _resetAnswerState();
     } else {
       isQuizCompleted.value = true;
       Get.offAllNamed('/result');
     }
   }
 
+  /// Seçilen cevabın doğruluğunu kontrol eder
   bool checkAnswer(String option) {
     final currentQuestion = questions[currentQuestionIndex.value];
     final optionIndex = currentQuestion.options.indexOf(option);
     return optionIndex == currentQuestion.correctAnswerIndex;
   }
 
+  /// Doğru cevap sayısını hesaplar
   int get correctAnswers {
     if (userAnswers.isEmpty) return 0;
     int count = 0;
@@ -124,23 +143,35 @@ class QuizController extends GetxController {
     return count;
   }
 
+  /// Yanlış cevap sayısını hesaplar
   int get wrongAnswers {
     if (userAnswers.isEmpty) return 0;
     return userAnswers.length - correctAnswers;
   }
 
+  /// Quiz'i tamamen sıfırlar ve ana ekrana döner
   void resetQuiz() {
     selectedSubject.value = '';
     selectedGrade.value = 0;
     questions.clear();
-    currentQuestionIndex.value = 0;
+    _resetQuizState();
+    Get.offAllNamed('/welcome');
+  }
+
+  /// Quiz durumunu sıfırlar
+  void _resetQuizState() {
     userAnswers.clear();
+    currentQuestionIndex.value = 0;
     isQuizCompleted.value = false;
+    _resetAnswerState();
+  }
+
+  /// Cevap durumunu sıfırlar
+  void _resetAnswerState() {
     selectedAnswer.value = -1;
     correctAnswerIndex.value = -1;
     isAnswerCorrect.value = false;
     showResult.value = false;
-    Get.offAllNamed('/welcome');
   }
 
   @override

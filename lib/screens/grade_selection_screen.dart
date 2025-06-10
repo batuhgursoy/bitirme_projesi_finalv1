@@ -4,6 +4,9 @@ import '../controllers/quiz_controller.dart';
 import 'quiz_screen.dart';
 import 'dart:math';
 
+/// Sınıf seçim ekranı
+/// Kullanıcıya animasyonlu ve interaktif bir arayüz ile sınıf seviyesi seçimi sunar
+/// Her sınıf için özel tasarlanmış kartlar ve görsel efektler içerir
 class GradeSelectionScreen extends StatefulWidget {
   const GradeSelectionScreen({super.key});
 
@@ -11,21 +14,29 @@ class GradeSelectionScreen extends StatefulWidget {
   State<GradeSelectionScreen> createState() => _GradeSelectionScreenState();
 }
 
-class _GradeSelectionScreenState extends State<GradeSelectionScreen> with SingleTickerProviderStateMixin {
+class _GradeSelectionScreenState extends State<GradeSelectionScreen>
+    with SingleTickerProviderStateMixin {
+  /// Animasyonları kontrol eden controller
   late AnimationController _controller;
+
+  /// Aktif kart indeksi
   int _currentIndex = 0;
+
+  /// Kart geçişlerini yöneten controller
   final PageController _pageController = PageController(viewportFraction: 0.8);
-  
+
   @override
   void initState() {
     super.initState();
+    // Giriş animasyonlarını başlat
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    
+
     _controller.forward();
-    
+
+    // Sayfa değişimlerini takip et
     _pageController.addListener(() {
       int next = _pageController.page!.round();
       if (_currentIndex != next) {
@@ -35,7 +46,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
       }
     });
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -43,28 +54,64 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
     super.dispose();
   }
 
-  // Subject rengi üzerinden sınıf rengi oluşturan yardımcı fonksiyon
+  /// Seçilen derse göre tema rengini belirler
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case 'Türkçe':
+        return const Color(0xFFFFA726); // Turuncu
+      case 'Matematik':
+        return const Color(0xFF7C4DFF); // Mor
+      case 'Hayat Bilgisi':
+        return const Color(0xFF4CAF50); // Yeşil
+      case 'İngilizce':
+        return const Color(0xFF42A5F5); // Mavi
+      default:
+        return const Color(0xFFFFA726); // Varsayılan: Turuncu
+    }
+  }
+
+  /// Seçilen derse göre ikon belirler
+  IconData _getSubjectIcon(String subject) {
+    switch (subject) {
+      case 'Türkçe':
+        return Icons.menu_book; // Kitap ikonu
+      case 'Matematik':
+        return Icons.calculate; // Hesap makinesi ikonu
+      case 'Hayat Bilgisi':
+        return Icons.nature_people; // İnsan ve doğa ikonu
+      case 'İngilizce':
+        return Icons.language; // Dil ikonu
+      default:
+        return Icons.school_rounded; // Varsayılan okul ikonu
+    }
+  }
+
+  /// Seçilen derse göre sınıf renk tonlarını oluşturur
+  /// Her sınıf seviyesi için farklı ton ve parlaklıkta renkler üretir
   Color _getGradeColorVariation(Color baseColor, int grade) {
     final hslColor = HSLColor.fromColor(baseColor);
-    
-    switch(grade) {
+
+    switch (grade) {
       case 1:
-        // Daha canlı/açık ton
-        return hslColor.withLightness((hslColor.lightness + 0.1).clamp(0.0, 1.0))
-                      .withSaturation((hslColor.saturation + 0.1).clamp(0.0, 1.0))
-                      .toColor();
+        // 1. sınıf için daha canlı ve açık ton
+        return hslColor
+            .withLightness((hslColor.lightness + 0.1).clamp(0.0, 1.0))
+            .withSaturation((hslColor.saturation + 0.1).clamp(0.0, 1.0))
+            .toColor();
       case 2:
-        // Orijinal tona yakın
+        // 2. sınıf için orijinal ton
         return hslColor.toColor();
       case 3:
-        // Biraz daha koyu ton
-        return hslColor.withLightness((hslColor.lightness - 0.1).clamp(0.0, 1.0))
-                      .toColor();
+        // 3. sınıf için biraz daha koyu ton
+        return hslColor
+            .withLightness((hslColor.lightness - 0.1).clamp(0.0, 1.0))
+            .toColor();
       case 4:
-        // En koyu ton
-        return hslColor.withLightness((hslColor.lightness - 0.2).clamp(0.0, 1.0))
-                      .withSaturation((hslColor.saturation + 0.05).clamp(0.0, 1.0))
-                      .toColor();
+        // 4. sınıf için en koyu ve doygun ton
+        return hslColor
+            .withLightness((hslColor.lightness - 0.2).clamp(0.0, 1.0))
+            .withSaturation((hslColor.saturation + 0.05).clamp(0.0, 1.0))
+            .toColor();
       default:
         return baseColor;
     }
@@ -75,8 +122,9 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
     final QuizController controller = Get.find<QuizController>();
     final size = MediaQuery.of(context).size;
     final subjectColor = _getSubjectColor(controller.selectedSubject.value);
-    
-    // Sınıf listesini her build işleminde dinamik olarak oluşturalım
+
+    /// Dinamik sınıf kartları için veri modeli
+    /// Her sınıf için özel renk, ikon ve açıklama içerir
     final List<Map<String, dynamic>> dynamicGrades = [
       {
         'grade': 1,
@@ -111,7 +159,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradient
+          /// Gradient arka plan
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -124,14 +172,17 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
               ),
             ),
           ),
-          
-          // Background floating elements
+
+          /// Animasyonlu arka plan elementleri
+          /// Seçilen derse göre yüzen ikonlar oluşturur
           ...List.generate(8, (index) {
             final random = Random();
             final size = 20.0 + random.nextDouble() * 30;
-            final double top = random.nextDouble() * MediaQuery.of(context).size.height;
-            final double left = random.nextDouble() * MediaQuery.of(context).size.width;
-            
+            final double top =
+                random.nextDouble() * MediaQuery.of(context).size.height;
+            final double left =
+                random.nextDouble() * MediaQuery.of(context).size.width;
+
             return Positioned(
               top: top,
               left: left,
@@ -157,18 +208,20 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
               ),
             );
           }),
-          
+
           // Content
           SafeArea(
             child: Column(
               children: [
                 // App Bar Başlık
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black54),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                            color: Colors.black54),
                         onPressed: () => Get.back(),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -187,7 +240,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                           ),
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -202,7 +256,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                           child: Row(
                             children: [
                               Icon(
-                                _getSubjectIcon(controller.selectedSubject.value),
+                                _getSubjectIcon(
+                                    controller.selectedSubject.value),
                                 color: subjectColor,
                                 size: 18,
                               ),
@@ -221,7 +276,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                     ],
                   ),
                 ),
-                
+
                 // Title section
                 SlideTransition(
                   position: Tween<Offset>(
@@ -234,7 +289,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 20),
                     child: Stack(
                       children: [
                         // Decorative elements - subject-specific icon
@@ -257,7 +313,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                             ),
                           ),
                         ),
-                        
+
                         // Title content
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,9 +347,9 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 8),
-                            
+
                             // Animated underline with subject color
                             TweenAnimationBuilder<double>(
                               tween: Tween<double>(begin: 0, end: 1),
@@ -307,7 +363,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                     gradient: LinearGradient(
                                       colors: [
                                         subjectColor,
-                                        _getGradeColorVariation(subjectColor, 4),
+                                        _getGradeColorVariation(
+                                            subjectColor, 4),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(10),
@@ -315,9 +372,9 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                 );
                               },
                             ),
-                            
+
                             const SizedBox(height: 10),
-                            
+
                             // Subtitle with fade in animation
                             TweenAnimationBuilder<double>(
                               tween: Tween<double>(begin: 0, end: 1),
@@ -344,7 +401,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                     ),
                   ),
                 ),
-                
+
                 // 3D Carousel for grades
                 Expanded(
                   child: PageView.builder(
@@ -359,7 +416,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                       final grade = dynamicGrades[index];
                       final color = grade['color'] as Color;
                       bool active = _currentIndex == index;
-                      
+
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeOutQuint,
@@ -401,7 +458,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                       child: Image.asset(
                                         grade['pattern'],
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           // Fallback - decorative background with school themes
                                           return CustomPaint(
                                             painter: GradePatternPainter(
@@ -414,7 +472,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Gradient overlay
                                   Positioned.fill(
                                     child: Container(
@@ -430,12 +488,13 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Content
                                   Container(
                                     padding: const EdgeInsets.all(30),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         // Grade number with glow
                                         Transform.rotate(
@@ -452,7 +511,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                                   shape: BoxShape.circle,
                                                 ),
                                               ),
-                                              
+
                                               // Main circle
                                               Container(
                                                 width: 120,
@@ -462,7 +521,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                                   shape: BoxShape.circle,
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: color.withOpacity(0.5),
+                                                      color: color
+                                                          .withOpacity(0.5),
                                                       blurRadius: 20,
                                                       spreadRadius: 5,
                                                     ),
@@ -473,24 +533,46 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                                     "${grade['grade']}",
                                                     style: TextStyle(
                                                       fontSize: 60,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: color,
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                              
+
                                               // Small animated circles - with position clamping
                                               ...List.generate(3, (i) {
-                                                final double angle = 2 * pi * i / 3;
+                                                final double angle =
+                                                    2 * pi * i / 3;
                                                 // Calculate position with safe boundaries
-                                                final calculatedLeft = 70 + 60 * cos(angle + (_currentIndex == index ? 0.001 * DateTime.now().millisecondsSinceEpoch % (2 * pi) : 0));
-                                                final calculatedTop = 70 + 60 * sin(angle + (_currentIndex == index ? 0.001 * DateTime.now().millisecondsSinceEpoch % (2 * pi) : 0));
-                                                
+                                                final calculatedLeft = 70 +
+                                                    60 *
+                                                        cos(angle +
+                                                            (_currentIndex ==
+                                                                    index
+                                                                ? 0.001 *
+                                                                    DateTime.now()
+                                                                        .millisecondsSinceEpoch %
+                                                                    (2 * pi)
+                                                                : 0));
+                                                final calculatedTop = 70 +
+                                                    60 *
+                                                        sin(angle +
+                                                            (_currentIndex ==
+                                                                    index
+                                                                ? 0.001 *
+                                                                    DateTime.now()
+                                                                        .millisecondsSinceEpoch %
+                                                                    (2 * pi)
+                                                                : 0));
+
                                                 // Clamp values to stay within container bounds
-                                                final safeLeft = calculatedLeft.clamp(10.0, 130.0);
-                                                final safeTop = calculatedTop.clamp(10.0, 130.0);
-                                                
+                                                final safeLeft = calculatedLeft
+                                                    .clamp(10.0, 130.0);
+                                                final safeTop = calculatedTop
+                                                    .clamp(10.0, 130.0);
+
                                                 return Positioned(
                                                   left: safeLeft,
                                                   top: safeTop,
@@ -498,7 +580,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                                     width: 16,
                                                     height: 16,
                                                     decoration: BoxDecoration(
-                                                      color: color.withOpacity(0.7),
+                                                      color: color
+                                                          .withOpacity(0.7),
                                                       shape: BoxShape.circle,
                                                     ),
                                                   ),
@@ -507,9 +590,9 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                             ],
                                           ),
                                         ),
-                                        
+
                                         const SizedBox(height: 20),
-                                        
+
                                         // Grade title and description
                                         Column(
                                           children: [
@@ -533,23 +616,29 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                             ),
                                           ],
                                         ),
-                                        
+
                                         const SizedBox(height: 20),
-                                        
+
                                         // Action button
                                         Transform.translate(
                                           offset: Offset(0, active ? 0 : 20),
                                           child: AnimatedOpacity(
-                                            duration: const Duration(milliseconds: 500),
+                                            duration: const Duration(
+                                                milliseconds: 500),
                                             opacity: active ? 1.0 : 0.0,
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 24),
                                               decoration: BoxDecoration(
                                                 color: color,
-                                                borderRadius: BorderRadius.circular(30),
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: color.withOpacity(0.4),
+                                                    color:
+                                                        color.withOpacity(0.4),
                                                     blurRadius: 10,
                                                     offset: const Offset(0, 4),
                                                   ),
@@ -562,7 +651,8 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                                                     'Quize Başla',
                                                     style: const TextStyle(
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontSize: 16,
                                                     ),
                                                   ),
@@ -589,7 +679,7 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
                     },
                   ),
                 ),
-                
+
                 // Carousel indicators - with bottom padding for safety
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
@@ -619,78 +709,53 @@ class _GradeSelectionScreenState extends State<GradeSelectionScreen> with Single
       ),
     );
   }
-  
-  Color _getSubjectColor(String subject) {
-    switch(subject) {
-      case 'Türkçe':
-        return const Color(0xFFFFA726);  // Turuncu
-      case 'Matematik':
-        return const Color(0xFF7C4DFF);  // Mor
-      case 'Hayat Bilgisi':
-        return const Color(0xFF4CAF50);  // Yeşil
-      case 'İngilizce':
-        return const Color(0xFF42A5F5);  // Mavi
-      default:
-        return const Color(0xFFFFA726);  // Varsayılan: Turuncu
-    }
-  }
-  
-  IconData _getSubjectIcon(String subject) {
-    switch(subject) {
-      case 'Türkçe':
-        return Icons.menu_book;
-      case 'Matematik':
-        return Icons.calculate;
-      case 'Hayat Bilgisi':
-        return Icons.nature_people;
-      case 'İngilizce':
-        return Icons.language;
-      default:
-        return Icons.school_rounded;
-    }
-  }
 }
 
+/// Sınıf kartları için özel desen çizici
+/// Her sınıf seviyesi için farklı eğitim temalı desenler oluşturur
 class GradePatternPainter extends CustomPainter {
   final Color color;
   final int grade;
-  
+
   GradePatternPainter({required this.color, required this.grade});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color.withOpacity(0.05)
       ..style = PaintingStyle.fill;
-    
+
     final symbolPaint = Paint()
       ..color = color.withOpacity(0.1)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    
-    // Draw random educational symbols
-    final random = Random(grade); // Use grade as seed for consistent randomness
-    
+
+    /// Her sınıf için özel eğitim sembolleri çiz
+    final random =
+        Random(grade); // Tutarlı rastgelelik için sınıfı seed olarak kullan
+
     for (int i = 0; i < 30; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
       final symbolSize = 10.0 + random.nextDouble() * 20;
-      
-      // Different symbols based on grade
+
       switch (grade) {
         case 1:
-          // Simple shapes for 1st grade
+
+          /// 1. sınıf için basit geometrik şekiller
           if (i % 3 == 0) {
-            // Circle
+            // Daire
             canvas.drawCircle(Offset(x, y), symbolSize, symbolPaint);
           } else if (i % 3 == 1) {
-            // Square
+            // Kare
             canvas.drawRect(
-              Rect.fromCenter(center: Offset(x, y), width: symbolSize * 2, height: symbolSize * 2),
-              symbolPaint
-            );
+                Rect.fromCenter(
+                    center: Offset(x, y),
+                    width: symbolSize * 2,
+                    height: symbolSize * 2),
+                symbolPaint);
           } else {
-            // Triangle
+            // Üçgen
             final path = Path();
             path.moveTo(x, y - symbolSize);
             path.lineTo(x - symbolSize, y + symbolSize);
@@ -699,57 +764,47 @@ class GradePatternPainter extends CustomPainter {
             canvas.drawPath(path, symbolPaint);
           }
           break;
-          
+
         case 2:
-          // Numbers for 2nd grade
+
+          /// 2. sınıf için matematik sembolleri
           if (i % 4 == 0) {
-            // Plus sign
-            canvas.drawLine(
-              Offset(x - symbolSize, y),
-              Offset(x + symbolSize, y),
-              symbolPaint
-            );
-            canvas.drawLine(
-              Offset(x, y - symbolSize),
-              Offset(x, y + symbolSize),
-              symbolPaint
-            );
+            // Artı işareti
+            canvas.drawLine(Offset(x - symbolSize, y),
+                Offset(x + symbolSize, y), symbolPaint);
+            canvas.drawLine(Offset(x, y - symbolSize),
+                Offset(x, y + symbolSize), symbolPaint);
           } else {
-            // Circle with number
+            // Sayı çemberi
             canvas.drawCircle(Offset(x, y), symbolSize, symbolPaint);
           }
           break;
-          
+
         case 3:
-          // More complex symbols for 3rd grade
+
+          /// 3. sınıf için karmaşık şekiller
           if (i % 3 == 0) {
-            // Star shape
+            // Yıldız
             final path = Path();
             for (int j = 0; j < 5; j++) {
               final angle = -pi / 2 + j * 2 * pi / 5;
               final innerAngle = angle + pi / 5;
-              
+
               if (j == 0) {
                 path.moveTo(
-                  x + cos(angle) * symbolSize,
-                  y + sin(angle) * symbolSize
-                );
+                    x + cos(angle) * symbolSize, y + sin(angle) * symbolSize);
               } else {
                 path.lineTo(
-                  x + cos(angle) * symbolSize,
-                  y + sin(angle) * symbolSize
-                );
+                    x + cos(angle) * symbolSize, y + sin(angle) * symbolSize);
               }
-              
-              path.lineTo(
-                x + cos(innerAngle) * (symbolSize / 2),
-                y + sin(innerAngle) * (symbolSize / 2)
-              );
+
+              path.lineTo(x + cos(innerAngle) * (symbolSize / 2),
+                  y + sin(innerAngle) * (symbolSize / 2));
             }
             path.close();
             canvas.drawPath(path, symbolPaint);
           } else {
-            // Wave line
+            // Dalga çizgisi
             final path = Path();
             path.moveTo(x - symbolSize, y);
             for (int j = 0; j < 4; j++) {
@@ -760,47 +815,50 @@ class GradePatternPainter extends CustomPainter {
             canvas.drawPath(path, symbolPaint);
           }
           break;
-          
+
         case 4:
-          // More educational symbols for 4th grade
+
+          /// 4. sınıf için bilimsel semboller
           if (i % 3 == 0) {
-            // Compass or clock shape
+            // Pusula veya saat
             canvas.drawCircle(Offset(x, y), symbolSize, symbolPaint);
             canvas.drawLine(
-              Offset(x, y),
-              Offset(x + cos(pi/4) * symbolSize, y + sin(pi/4) * symbolSize),
-              symbolPaint..strokeWidth = 3
-            );
+                Offset(x, y),
+                Offset(
+                    x + cos(pi / 4) * symbolSize, y + sin(pi / 4) * symbolSize),
+                symbolPaint..strokeWidth = 3);
             canvas.drawLine(
-              Offset(x, y),
-              Offset(x + cos(3*pi/4) * symbolSize * 0.6, y + sin(3*pi/4) * symbolSize * 0.6),
-              symbolPaint..strokeWidth = 3
-            );
+                Offset(x, y),
+                Offset(x + cos(3 * pi / 4) * symbolSize * 0.6,
+                    y + sin(3 * pi / 4) * symbolSize * 0.6),
+                symbolPaint..strokeWidth = 3);
           } else if (i % 3 == 1) {
-            // Molecule or atom shape
+            // Molekül veya atom
             canvas.drawCircle(Offset(x, y), symbolSize / 3, symbolPaint);
             for (int j = 0; j < 3; j++) {
               final angle = j * 2 * pi / 3;
               final orbitX = x + cos(angle) * symbolSize;
               final orbitY = y + sin(angle) * symbolSize;
-              canvas.drawCircle(Offset(orbitX, orbitY), symbolSize / 5, symbolPaint);
-              canvas.drawLine(Offset(x, y), Offset(orbitX, orbitY), symbolPaint);
+              canvas.drawCircle(
+                  Offset(orbitX, orbitY), symbolSize / 5, symbolPaint);
+              canvas.drawLine(
+                  Offset(x, y), Offset(orbitX, orbitY), symbolPaint);
             }
           } else {
-            // Graph or chart
-            final rect = Rect.fromCenter(center: Offset(x, y), width: symbolSize * 2, height: symbolSize * 2);
+            // Grafik veya tablo
+            final rect = Rect.fromCenter(
+                center: Offset(x, y),
+                width: symbolSize * 2,
+                height: symbolSize * 2);
             canvas.drawRect(rect, symbolPaint);
-            canvas.drawLine(
-              Offset(rect.left, rect.bottom),
-              Offset(rect.right, rect.top),
-              symbolPaint
-            );
+            canvas.drawLine(Offset(rect.left, rect.bottom),
+                Offset(rect.right, rect.top), symbolPaint);
           }
           break;
       }
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 
+}

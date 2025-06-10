@@ -53,13 +53,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 3000),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
-    _controller.forward();
+    _controller.repeat(reverse: true);
   }
 
   @override
